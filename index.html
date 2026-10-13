@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Эко-Проект | Вопрос-Ответ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e8f5e9 0%, #ffffff 50%, #c8e6c9 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            color: #1b5e20;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            color: #2e7d32;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(46, 125, 50, 0.15);
+        }
+
+        header h1 span {
+            color: #66bb6a;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: #4caf50;
+            font-weight: 500;
+        }
+
+        .divider {
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #4caf50, transparent);
+            margin: 20px auto;
+            border-radius: 2px;
+        }
+
+        .quiz-container {
+            width: 100%;
+            max-width: 750px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .question-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(46, 125, 50, 0.12);
+            border-left: 6px solid #4caf50;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .question-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(46, 125, 50, 0.2);
+        }
+
+        .question-number {
+            display: inline-block;
+            background: #4caf50;
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: bold;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            color: #1b5e20;
+            font-weight: 600;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 140px;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-true {
+            background: linear-gradient(135deg, #66bb6a, #43a047);
+            color: #ffffff;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.35);
+        }
+
+        .btn-true:hover:not(:disabled) {
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.5);
+        }
+
+        .btn-false {
+            background: #ffffff;
+            color: #2e7d32;
+            border: 2px solid #4caf50;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.15);
+        }
+
+        .btn-false:hover:not(:disabled) {
+            background: #e8f5e9;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
+        .btn.correct-choice {
+            background: linear-gradient(135deg, #66bb6a, #43a047) !important;
+            color: #fff !important;
+            border-color: #2e7d32 !important;
+            box-shadow: 0 0 0 4px rgba(102, 187, 106, 0.4) !important;
+            opacity: 1 !important;
+        }
+
+        .btn.wrong-choice {
+            background: #ffebee !important;
+            color: #c62828 !important;
+            border: 2px solid #e57373 !important;
+            box-shadow: 0 0 0 4px rgba(229, 115, 115, 0.35) !important;
+            opacity: 1 !important;
+        }
+
+        .btn-icon {
+            font-size: 1.2rem;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            opacity: 0;
+            transition: all 0.45s ease;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .feedback.show {
+            max-height: 500px;
+            padding: 18px 20px;
+            opacity: 1;
+            margin-top: 20px;
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            border-left: 5px solid #43a047;
+            color: #1b5e20;
+        }
+
+        .feedback.incorrect {
+            background: #ffebee;
+            border-left: 5px solid #e57373;
+            color: #b71c1c;
+        }
+
+        .feedback .verdict {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.05rem;
+        }
+
+        .feedback .explanation {
+            color: #2e7d32;
+            font-weight: 500;
+        }
+
+        .feedback.incorrect .explanation {
+            color: #8d2f2f;
+        }
+
+        .result-block {
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: #ffffff;
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(46, 125, 50, 0.35);
+            display: none;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .result-block.show {
+            display: block;
+        }
+
+        .result-block h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .result-score {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 15px 0;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-text {
+            font-size: 1.15rem;
+            margin-bottom: 25px;
+            opacity: 0.95;
+        }
+
+        .btn-restart {
+            background: #ffffff;
+            color: #2e7d32;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-restart:hover {
+            background: #e8f5e9;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            color: #66bb6a;
+            font-size: 0.95rem;
+            animation: fadeIn 1.5s ease;
+        }
+
+        footer .leaf {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 2rem; }
+            .question-card { padding: 22px; }
+            .question-text { font-size: 1.1rem; }
+            .btn { min-width: 100%; }
+            .result-score { font-size: 2.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🌿 Эко<span>-Проект</span></h1>
+        <div class="divider"></div>
+        <p>Рубрика «Вопрос — Ответ»</p>
+    </header>
+
+    <main class="quiz-container" id="quiz">
+
+        <!-- Вопрос 1 -->
+        <div class="question-card" data-answer="true"
+             data-correct="Да, правда! Пластиковая бутылка разлагается около 200 лет. Но в океане этот срок может достигать 450+ лет: холодная вода, мало кислорода и света, плюс обрастание микроорганизмами сильно замедляют разрушение."
+             data-wrong="Нет, не правда. На самом деле пластиковая бутылка разлагается около 200 лет, а в океане — до 450+ лет из-за холода, нехватки кислорода и обрастания микроорганизмами.">
+            <span class="question-number">Вопрос 1</span>
+            <p class="question-text">Правда ли, что пластиковая бутылка разлагается около 200 лет?</p>
+            <div class="buttons">
+                <button class="btn btn-true" data-choice="true"><span class="btn-icon">✔</span> Верно</button>
+                <button class="btn btn-false" data-choice="false"><span class="btn-icon">✘</span> Неверно</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <!-- Вопрос 2 -->
+        <div class="question-card" data-answer="true"
+             data-correct="Да, правда! Микропластик обнаружен в крови, лёгких, плаценте и даже в грудном молоке человека."
+             data-wrong="Нет, не правда. Микропластик действительно находят в организме человека — в крови, лёгких и даже в плаценте.">
+            <span class="question-number">Вопрос 2</span>
+            <p class="question-text">Правда ли, что микропластик находится даже в человеке?</p>
+            <div class="buttons">
+                <button class="btn btn-true" data-choice="true"><span class="btn-icon">✔</span> Верно</button>
+                <button class="btn btn-false" data-choice="false"><span class="btn-icon">✘</span> Неверно</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <!-- Вопрос 3 -->
+        <div class="question-card" data-answer="false"
+             data-correct="Верно! Одноразовые подгузники разлагаются около 500 лет — это дольше, чем большинство пластиков."
+             data-wrong="Нет, не правда. Одноразовые подгузники разлагаются около 500 лет — это дольше, чем многие виды пластика.">
+            <span class="question-number">Вопрос 3</span>
+            <p class="question-text">Одноразовые подгузники разлагаются быстрее пластика?</p>
+            <div class="buttons">
+                <button class="btn btn-true" data-choice="true"><span class="btn-icon">✔</span> Верно</button>
+                <button class="btn btn-false" data-choice="false"><span class="btn-icon">✘</span> Неверно</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <!-- Вопрос 4 -->
+        <div class="question-card" data-answer="true"
+             data-correct="Да, правда! Стекло можно перерабатывать бесконечное количество раз без потери качества."
+             data-wrong="Нет, не правда. Стекло можно перерабатывать неограниченно — без потери свойств и качества.">
+            <span class="question-number">Вопрос 4</span>
+            <p class="question-text">Можно ли перерабатывать стекло?</p>
+            <div class="buttons">
+                <button class="btn btn-true" data-choice="true"><span class="btn-icon">✔</span> Верно</button>
+                <button class="btn btn-false" data-choice="false"><span class="btn-icon">✘</span> Неверно</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <!-- Вопрос 5 -->
+        <div class="question-card" data-answer="false"
+             data-correct="Верно! Не все виды пластика перерабатываются. Например, PET и HDPE — да, а PVC и полистирол — практически нет."
+             data-wrong="Нет, не правда. Перерабатываются не все виды пластика: PET и HDPE — да, а PVC, полистирол и другие — почти нет.">
+            <span class="question-number">Вопрос 5</span>
+            <p class="question-text">Правда ли, что все виды пластика можно перерабатывать?</p>
+            <div class="buttons">
+                <button class="btn btn-true" data-choice="true"><span class="btn-icon">✔</span> Верно</button>
+                <button class="btn btn-false" data-choice="false"><span class="btn-icon">✘</span> Неверно</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <!-- Вопрос 6 -->
+        <div class="question-card" data-answer="true"
+             data-correct="Да, правда! Переработка стекла экономит до 30% энергии и снижает выбросы CO₂ по сравнению с производством нового стекла."
+             data-wrong="Нет, не правда. Переработка стекла действительно экономичнее: экономится до 30% энергии и снижаются выбросы CO₂.">
+            <span class="question-number">Вопрос 6</span>
+            <p class="question-text">Правда ли, что перерабатывать стеклянные бутылки экономичнее, чем производить новые?</p>
+            <div class="buttons">
+                <button class="btn btn-true" data-choice="true"><span class="btn-icon">✔</span> Верно</button>
+                <button class="btn btn-false" data-choice="false"><span class="btn-icon">✘</span> Неверно</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <!-- Вопрос 7 -->
+        <div class="question-card" data-answer="false"
+             data-correct="Верно! Даже один человек может влиять на экологию: сортировка мусора, отказ от пластика, экономия воды — всё это важно."
+             data-wrong="Нет, не правда. Даже один человек способен повлиять на экологию — своими ежедневными привычками и выбором.">
+            <span class="question-number">Вопрос 7</span>
+            <p class="question-text">Считается ли, что даже 1 человек не может повлиять на экологию?</p>
+            <div class="buttons">
+                <button class="btn btn-true" data-choice="true"><span class="btn-icon">✔</span> Верно</button>
+                <button class="btn btn-false" data-choice="false"><span class="btn-icon">✘</span> Неверно</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <!-- Вопрос 8 -->
+        <div class="question-card" data-answer="true"
+             data-correct="Да, правда! В городской дождевой воде действительно находят микропластик — он поднимается с асфальта, крыш и из воздуха, а затем выпадает с осадками."
+             data-wrong="Нет, не правда. Микропластик действительно содержится в городской дождевой воде — частицы поднимаются с дорог, крыш и из воздуха.">
+            <span class="question-number">Вопрос 8</span>
+            <p class="question-text">Правда ли, что дождевая вода в городе содержит микропластик?</p>
+            <div class="buttons">
+                <button class="btn btn-true" data-choice="true"><span class="btn-icon">✔</span> Верно</button>
+                <button class="btn btn-false" data-choice="false"><span class="btn-icon">✘</span> Неверно</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <!-- Вопрос 9 -->
+        <div class="question-card" data-answer="true"
+             data-correct="Да, правда! Одна батарейка, выброшенная в мусор, способна загрязнить до 20 м² земли или 400 литров воды тяжёлыми металлами."
+             data-wrong="Нет, не правда. Одна выброшенная батарейка действительно загрязняет до 20 м² почвы или 400 литров воды — её нужно сдавать на переработку.">
+            <span class="question-number">Вопрос 9</span>
+            <p class="question-text">Правда ли, что одна выброшенная батарейка загрязняет 20 м² земли?</p>
+            <div class="buttons">
+                <button class="btn btn-true" data-choice="true"><span class="btn-icon">✔</span> Верно</button>
+                <button class="btn btn-false" data-choice="false"><span class="btn-icon">✘</span> Неверно</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <!-- Вопрос 10 -->
+        <div class="question-card" data-answer="false"
+             data-correct="Верно! Бумажный пакет не всегда экологичнее: на его производство уходит больше воды и энергии, а разлагается он ненамного быстрее. Лучший выбор — многоразовая сумка."
+             data-wrong="Нет, не правда. Бумажный пакет не всегда экологичнее пластикового — на него уходит больше воды и энергии. Лучше выбрать многоразовую сумку.">
+            <span class="question-number">Вопрос 10</span>
+            <p class="question-text">Правда ли, что бумажный пакет всегда экологичнее пластикового?</p>
+            <div class="buttons">
+                <button class="btn btn-true" data-choice="true"><span class="btn-icon">✔</span> Верно</button>
+                <button class="btn btn-false" data-choice="false"><span class="btn-icon">✘</span> Неверно</button>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <!-- Блок результата -->
+        <div class="result-block" id="result">
+            <h2>🍃 Ваш результат</h2>
+            <div class="result-score" id="score">0 / 10</div>
+            <p class="result-text" id="result-text"></p>
+            <button class="btn-restart" id="restart">Пройти заново</button>
+        </div>
+
+    </main>
+
+    <footer>
+        <span class="leaf">🍃</span>
+        Вместе сохраним природу для будущих поколений
+    </footer>
+
+    <script>
+        const cards = document.querySelectorAll('.question-card');
+        const resultBlock = document.getElementById('result');
+        const scoreEl = document.getElementById('score');
+        const resultText = document.getElementById('result-text');
+        const restartBtn = document.getElementById('restart');
+
+        let score = 0;
+        let answered = 0;
+        const total = cards.length;
+
+        cards.forEach(card => {
+            const correctAnswer = card.dataset.answer === 'true';
+            const buttons = card.querySelectorAll('.btn');
+            const feedback = card.querySelector('.feedback');
+
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (card.dataset.done === 'true') return;
+                    card.dataset.done = 'true';
+
+                    const chosen = btn.dataset.choice === 'true';
+                    const isCorrect = chosen === correctAnswer;
+
+                    buttons.forEach(b => b.disabled = true);
+
+                    if (isCorrect) {
+                        btn.classList.add('correct-choice');
+                        score++;
+                    } else {
+                        btn.classList.add('wrong-choice');
+                        buttons.forEach(b => {
+                            if ((b.dataset.choice === 'true') === correctAnswer) {
+                                b.classList.add('correct-choice');
+                            }
+                        });
+                    }
+
+                    let verdict, explanation;
+                    if (isCorrect) {
+                        verdict = '✅ Правильно!';
+                        explanation = card.dataset.correct;
+                        feedback.classList.add('correct');
+                    } else {
+                        verdict = '❌ Неправильно.';
+                        explanation = card.dataset.wrong;
+                        feedback.classList.add('incorrect');
+                    }
+
+                    feedback.innerHTML = `<span class="verdict">${verdict}</span><span class="explanation">${explanation}</span>`;
+                    feedback.classList.add('show');
+
+                    answered++;
+
+                    if (answered === total) {
+                        showResult();
+                    }
+                });
+            });
+        });
+
+        function showResult() {
+            scoreEl.textContent = `${score} / ${total}`;
+
+            let message = '';
+            const percent = (score / total) * 100;
+            if (percent === 100) {
+                message = 'Идеально! Вы настоящий эко-эксперт! 🌱';
+            } else if (percent >= 70) {
+                message = 'Отличный результат! Вы хорошо знаете экологию. 🌿';
+            } else if (percent >= 40) {
+                message = 'Неплохо! Но есть куда расти — узнайте больше об экологии. 🍀';
+            } else {
+                message = 'Стоит узнать больше о нашей планете — начните с простых эко-привычек! 🌍';
+            }
+
+            resultText.textContent = message;
+
+            setTimeout(() => {
+                resultBlock.classList.add('show');
+                resultBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 500);
+        }
+
+        restartBtn.addEventListener('click', () => {
+            score = 0;
+            answered = 0;
+            resultBlock.classList.remove('show');
+
+            cards.forEach(card => {
+                card.dataset.done = 'false';
+                const buttons = card.querySelectorAll('.btn');
+                const feedback = card.querySelector('.feedback');
+
+                buttons.forEach(b => {
+                    b.disabled = false;
+                    b.classList.remove('correct-choice', 'wrong-choice');
+                });
+
+                feedback.classList.remove('show', 'correct', 'incorrect');
+                feedback.innerHTML = '';
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+
+</body>
+          </html>
